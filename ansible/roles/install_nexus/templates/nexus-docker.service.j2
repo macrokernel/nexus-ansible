@@ -1,0 +1,12 @@
+[Unit]
+Description=nexus-docker service
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+ExecStart={{ nexus_docker_compose_binary_full_path }} -f {{ nexus_docker_compose_location }}/{{ nexus_docker_compose_file_name }} up
+ExecStop={{ nexus_docker_compose_binary_full_path }} -f {{ nexus_docker_compose_location }}/{{ nexus_docker_compose_file_name }} stop
+
+[Install]
+WantedBy=multi-user.target

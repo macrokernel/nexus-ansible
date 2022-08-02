@@ -1,0 +1,14 @@
+---
+nexus_docker_compose_template: templates/nexus-docker-compose.yml.j2
+nexus_docker_compose_location: /srv/nexus
+nexus_docker_compose_file_name: docker-compose.yml
+nexus_docker_compose_binary_full_path: /usr/local/bin/docker-compose
+
+nexus_service_template: templates/nexus-docker.service.j2
+nexus_service_location: /etc/systemd/system
+nexus_service_name: nexus-docker
+
+nexus_autoconfiguration_sh_template: templates/nexus-autoconfiguration.sh.j2
+nexus_autoconfiguration_sh_file_name: nexus-autoconfiguration.sh
+
+nginx_conf_file: templates/nginx.conf.j2

@@ -1,0 +1,4 @@
+#!/bin/sh
+
+curl -u admin:{{ nexus_password }} -k -H 'Content-Type: application/json' 'https://{{ server_name }}/service/rest/v1/script' -d '{"name": "CreateDockerProxy","type": "groovy","content": "repository.createDockerProxy('\''docker-proxy-registry'\'', '\''https://registry-1.docker.io'\'', '\''HUB'\'', null, 5000, null)"}'
+curl -X POST -u admin:{{ nexus_password }} -k -H 'Content-Type: text/plain' 'https://{{ server_name }}/service/rest/v1/script/CreateDockerProxy/run'

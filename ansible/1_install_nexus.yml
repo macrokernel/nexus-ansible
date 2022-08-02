@@ -1,0 +1,6 @@
+---
+- hosts: nexus
+  become: yes
+  become_method: sudo
+  roles:
+    - install_nexus

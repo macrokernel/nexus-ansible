@@ -1,0 +1,41 @@
+version: '3.5'
+
+services:
+  nexus:
+    restart: unless-stopped
+    container_name: nexus
+    stop_grace_period: 120s
+    image: sonatype/nexus3:3.41.0
+    ports:
+      - 8081:8081
+    volumes:
+      - /srv/nexus/nexus-data:/nexus-data
+
+  nginx:
+    restart: unless-stopped
+    container_name: nginx
+    image: nginx:1.23.1
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - nexus
+    volumes:
+      - /srv/nexus/nginx-conf:/etc/nginx/conf.d
+      - /srv/nexus/dhparam/dhparam-2048.pem:/etc/ssl/certs/dhparam-2048.pem
+      - /srv/nexus/letsencrypt:/etc/letsencrypt
+      - /srv/nexus/web-root:/var/www/html
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - /srv/nexus/letsencrypt:/etc/letsencrypt
+      - /srv/nexus/web-root:/var/www/html
+    depends_on:
+      - nginx
+    command: certonly --staging --webroot --webroot-path=/var/www/html --email {{ certbot_email }} --agree-tos --no-eff-email --force-renewal -d {{ server_name }}
+      
+networks:
+  default:
+    name: nexus

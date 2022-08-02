@@ -1,4 +1,4 @@
-# Nexus repository manager + Nginx + Let’s Encrypt SSL in Docker compose  
+# Nexus repository manager + Nginx + Let’s Encrypt SSL in Docker compose Ansible role  
 
 This Ansible role configures Docker Compose with Sonatype Nexus repository manager, Nginx reverse proxy and Let's Encrypt SSL with auto-renewal.  
 

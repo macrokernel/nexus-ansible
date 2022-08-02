@@ -16,7 +16,7 @@ ansible-playbook ansible/0_generate_configs.yml
 Edit `ansible/inventory.ini` and specify your Nexus server IP address and username, for example:
 ```ini
 [nexus]
-nexus ansible_host=ubuntu@192.168.1.123
+nexus ansible_host=ubuntu@nexus.example.org
 ```
 
 Edit `ansible/group_vars/all.yml` and specify your Nexus server DNS name and other parameters, for example:

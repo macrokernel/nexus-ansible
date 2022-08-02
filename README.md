@@ -79,7 +79,7 @@ This work is partially based on the following sources.
 [2] Setup Nexus repository manager with Nginx reverse proxy and Let’s Encrypt SSL certificate on Docker // https://medium.com/@numb95/setup-nexus-repository-manager-with-nginx-reverse-proxy-and-lets-encrypt-ssl-certificate-on-docker-1c1b05988ce3
 
 
-## Ansible Role Execution example
+## Ansible Role Execution Example
 ```shell
 $ ansible-playbook -i inventory.ini 1_install_nexus.yml
 [WARNING]: Found both group and host with same name: nexus

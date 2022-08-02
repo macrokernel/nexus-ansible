@@ -13,7 +13,7 @@ Generate Ansible configs by running the following command
 ansible-playbook ansible/0_generate_configs.yml
 ```
 
-Edit `ansible/inventory.ini` and specify your Nexus server IP address and username, for example:
+Edit `ansible/inventory.ini` and specify your Nexus server address and username, for example:
 ```ini
 [nexus]
 nexus ansible_host=ubuntu@nexus.example.org

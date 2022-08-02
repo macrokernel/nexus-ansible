@@ -57,7 +57,7 @@ The `backend_name` and `backend_port` parameters are used in Nginx configuration
 
 The `server_name` and `server_alias` parameters instruct Nginx to forward traffic for the specified hostnames to Nexus. You may specify as many `server_alias` names as you wish, or you may leave it empty or undefined.  
 
-Setting `nexus_api_enable_creation: true` enables Nexus REST API creation features which are disabled in default installation. This in particular allows creation of the repositories using the Nexus REST API.  
+Setting `nexus_api_enable_creation: true` enables Nexus REST API creation features which are disabled in default installation. This in particular allows creation of new repositories using the Nexus REST API.  
 
 The Nexus deployment Ansible role is able to execute a script which configures Nexus using its REST API. If you wish to use this feature, you may edit the `ansible/roles/install_nexus/templates/nexus-autoconfiguration.sh.j2` autoconfiguration script template and set `nexus_api_enable_creation: true` and `nexus_autoconfiguration: true` in `ansible/group_vars/all.yml` before you run the deployment.
 

@@ -34,7 +34,6 @@ server_name: nexus.example.org
 server_alias: repo.example.org repository.example.org
 
 # === Nexus
-nexus_api_enable_creation: true
 nexus_autoconfiguration: true
 ```
 
@@ -57,9 +56,7 @@ The `backend_name` and `backend_port` parameters are used in Nginx configuration
 
 The `server_name` and `server_alias` parameters instruct Nginx to forward traffic for the specified hostnames to Nexus. You may specify as many `server_alias` names as you wish, or you may leave it empty or undefined.  
 
-Setting `nexus_api_enable_creation: true` enables Nexus REST API creation features which are disabled in default installation. This in particular allows creation of new repositories using the Nexus REST API.  
-
-The Nexus deployment Ansible role is able to execute a script which configures Nexus using its REST API. If you wish to use this feature, you may edit the `ansible/roles/install_nexus/templates/nexus-autoconfiguration.sh.j2` autoconfiguration script template and set `nexus_api_enable_creation: true` and `nexus_autoconfiguration: true` in `ansible/group_vars/all.yml` before you run the deployment.
+The Nexus deployment Ansible role is able to execute a script which configures Nexus using its REST API. If you wish to use this feature, you may edit the `ansible/roles/install_nexus/templates/nexus-autoconfiguration.sh.j2` autoconfiguration script template and set `nexus_autoconfiguration: true` in `ansible/group_vars/all.yml` before you run the deployment.
 
 Below is an example of the autoconfiguration script which creates a Docker proxy repository:
 ```shell
@@ -108,7 +105,7 @@ TASK [install_nexus : Disable Lets Encrypt staging mode in certbot command in th
 changed: [nexus]
 
 TASK [install_nexus : Create Nexus data directory /srv/nexus/nexus-data] **********************************************************************************
-ok: [nexus]
+changed: [nexus]
 
 TASK [install_nexus : Create Nginx configuration directory /srv/nexus/nginx-conf] *************************************************************************
 ok: [nexus]
@@ -126,15 +123,15 @@ TASK [install_nexus : Create Lets Encrypt directories "{{ nexus_docker_compose_l
 ok: [nexus] => (item=letsencrypt)
 ok: [nexus] => (item=web-root)
 
-TASK [install_nexus : Create dummy certificate for "nexus.example.com"] ************************************************************************************
-ok: [nexus] => (item=mkdir -p "/srv/nexus/letsencrypt/live/nexus.example.com")
-ok: [nexus] => (item=docker-compose run --rm --entrypoint "openssl req -x509 -nodes -newkey rsa:2048 -days 1 -keyout '/etc/letsencrypt/live/nexus.example.com/privkey.pem' -out '/etc/letsencrypt/live/nexus.example.com/fullchain.pem' -subj '/CN=localhost'" certbot)
+TASK [install_nexus : Create dummy certificate for "nexus.example.org"] ************************************************************************************
+ok: [nexus] => (item=mkdir -p "/srv/nexus/letsencrypt/live/nexus.example.org")
+ok: [nexus] => (item=docker-compose run --rm --entrypoint "openssl req -x509 -nodes -newkey rsa:2048 -days 1 -keyout '/etc/letsencrypt/live/nexus.example.org/privkey.pem' -out '/etc/letsencrypt/live/nexus.example.org/fullchain.pem' -subj '/CN=localhost'" certbot)
 
 TASK [install_nexus : Check if Nexus properties file exists] **********************************************************************************************
 ok: [nexus]
 
 TASK [install_nexus : Create "/srv/nexus/nexus-data/etc" directory] ***************************************************************************************
-ok: [nexus]
+changed: [nexus]
 
 TASK [install_nexus : Create "/srv/nexus/nexus-data/etc/nexus.properties" file] ***************************************************************************
 changed: [nexus]
@@ -157,10 +154,10 @@ ok: [nexus]
 TASK [install_nexus : Wait for Nginx startup] *************************************************************************************************************
 skipping: [nexus]
 
-TASK [install_nexus : Remove dummy certificate for "nexus.example.com"] ************************************************************************************
+TASK [install_nexus : Remove dummy certificate for "nexus.example.org"] ************************************************************************************
 skipping: [nexus]
 
-TASK [install_nexus : Wait for Certbot to obtain Lets Encrypt certificate for "nexus.example.com"] *********************************************************
+TASK [install_nexus : Wait for Certbot to obtain Lets Encrypt certificate for "nexus.example.org"] *********************************************************
 skipping: [nexus]
 
 TASK [install_nexus : Restart Nginx container] ************************************************************************************************************
@@ -176,8 +173,6 @@ FAILED - RETRYING: [nexus]: Wait for Nexus to come up (18 retries left).
 FAILED - RETRYING: [nexus]: Wait for Nexus to come up (17 retries left).
 FAILED - RETRYING: [nexus]: Wait for Nexus to come up (16 retries left).
 FAILED - RETRYING: [nexus]: Wait for Nexus to come up (15 retries left).
-FAILED - RETRYING: [nexus]: Wait for Nexus to come up (14 retries left).
-FAILED - RETRYING: [nexus]: Wait for Nexus to come up (13 retries left).
 ok: [nexus]
 
 TASK [install_nexus : Check if Nexus first-time password file exists] *************************************************************************************
@@ -195,11 +190,17 @@ changed: [nexus]
 TASK [install_nexus : Execute Nexus autoconfiguration script "nexus-autoconfiguration.sh"] ****************************************************************
 changed: [nexus]
 
+TASK [install_nexus : Disable Nexus REST API creation features] *******************************************************************************************
+changed: [nexus]
+
+TASK [install_nexus : Restart Nexus container] ************************************************************************************************************
+changed: [nexus]
+
 TASK [install_nexus : Please change Nexus admin password after first-time login] **************************************************************************
 ok: [nexus] => {
-    "msg": "Nexus admin password: 2b3d50fd-7bf1-41da-a2fd-0e7e68832617"
+    "msg": "Nexus admin password: 999d4924-6a57-47f9-8ae3-c02144db3674"
 }
 
 PLAY RECAP ************************************************************************************************************************************************
-nexus                      : ok=27   changed=8    unreachable=0    failed=0    skipped=7    rescued=0    ignored=0
+nexus                      : ok=29   changed=12   unreachable=0    failed=0    skipped=7    rescued=0    ignored=0  
 ```

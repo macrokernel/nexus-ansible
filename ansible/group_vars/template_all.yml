@@ -6,7 +6,7 @@ certbot_staging: true
 
 
 # === Nginx
-backend_name: nexus 
+backend_name: nexus
 backend_port: 8081
 server_name: nexus.example.org
 # Example: server_alias: repo.example.org
@@ -14,5 +14,4 @@ server_alias:
 
 
 # === Nexus
-nexus_api_enable_creation: false
 nexus_autoconfiguration: false

@@ -137,24 +137,7 @@
       path: "{{ nexus_docker_compose_location }}/nexus-data/etc/nexus.properties"
       regexp: '^nexus.scripts.allowCreation='
       line: nexus.scripts.allowCreation=true
-  when: nexus_api_enable_creation|default("") == true
-
-
-# This block must be located before the block where Nexus service is started
-- block:
-  - name: Check if Nexus properties file exists
-    stat:
-      path: "{{ nexus_docker_compose_location }}/nexus-data/etc/nexus.properties"
-    register: nexus_properties_file
-
-  - name: Disable Nexus REST API creation features
-    lineinfile:
-      path: "{{ nexus_docker_compose_location }}/nexus-data/etc/nexus.properties"
-      regexp: '^nexus.scripts.allowCreation='
-      line: nexus.scripts.allowCreation=true
-      state: absent
-    when: nexus_properties_file.stat.exists
-  when: nexus_api_enable_creation|default("") == false
+  when: nexus_autoconfiguration|default("") == true
 
 
 - block:
@@ -265,7 +248,19 @@
     command: "{{ nexus_docker_compose_location }}/{{ nexus_autoconfiguration_sh_file_name }}"
     args:
       chdir: "{{ nexus_docker_compose_location }}"
-  when: (nexus_autoconfiguration|default("") == true) and (nexus_api_enable_creation|default("") == true) and (first_time_password.stat.exists)
+
+  - name: Disable Nexus REST API creation features
+    lineinfile:
+      path: "{{ nexus_docker_compose_location }}/nexus-data/etc/nexus.properties"
+      regexp: '^nexus.scripts.allowCreation='
+      line: nexus.scripts.allowCreation=true
+      state: absent
+
+  - name: Restart Nexus container
+    command: docker-compose restart nexus
+    args:
+      chdir: "{{ nexus_docker_compose_location }}"
+  when: (nexus_autoconfiguration|default("") == true) and (first_time_password.stat.exists)
 
 
 - block:

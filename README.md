@@ -21,20 +21,25 @@ nexus ansible_host=ubuntu@nexus.example.org
 
 Edit `ansible/group_vars/all.yml` and specify your Nexus server DNS name and other parameters, for example:
 ```yaml
-# === Let's Encrypt
-certbot_email: admin@example.org
-certbot_renew_cron_hour: 3
-certbot_renew_cron_minute: 20
-certbot_staging: false
+# === Nexus
+nexus_docker_image: sonatype/nexus3:latest
+nexus_autoconfiguration: false
+
 
 # === Nginx
+nginx_docker_image: nginx:latest
 backend_name: nexus
 backend_port: 8081
 server_name: nexus.example.org
-server_alias: repo.example.org repository.example.org
+# Example: server_alias: repo.example.org
+server_alias: 
 
-# === Nexus
-nexus_autoconfiguration: true
+
+# == Let's Encrypt
+certbot_email: admin@example.org
+certbot_renew_cron_hour: 3
+certbot_renew_cron_minute: 20
+certbot_staging: true
 ```
 
 Run Ansible playbook

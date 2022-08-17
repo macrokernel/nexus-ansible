@@ -1,11 +1,10 @@
-# == Let's Encrypt
-certbot_email: admin@example.org
-certbot_renew_cron_hour: 3
-certbot_renew_cron_minute: 20
-certbot_staging: true
+# === Nexus
+nexus_docker_image: sonatype/nexus3:latest
+nexus_autoconfiguration: false
 
 
 # === Nginx
+nginx_docker_image: nginx:latest
 backend_name: nexus
 backend_port: 8081
 server_name: nexus.example.org
@@ -13,5 +12,8 @@ server_name: nexus.example.org
 server_alias: 
 
 
-# === Nexus
-nexus_autoconfiguration: false
+# == Let's Encrypt
+certbot_email: admin@example.org
+certbot_renew_cron_hour: 3
+certbot_renew_cron_minute: 20
+certbot_staging: true

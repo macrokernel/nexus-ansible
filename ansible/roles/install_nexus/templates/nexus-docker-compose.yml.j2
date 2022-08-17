@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     container_name: nexus
     stop_grace_period: 120s
-    image: sonatype/nexus3:3.41.0
+    image: {{ nexus_docker_image }}
     ports:
       - 8081:8081
     volumes:
@@ -14,7 +14,7 @@ services:
   nginx:
     restart: unless-stopped
     container_name: nginx
-    image: nginx:1.23.1
+    image: {{ nginx_docker_image }}
     ports:
       - 80:80
       - 443:443

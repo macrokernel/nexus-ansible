@@ -17,3 +17,7 @@ certbot_email: admin@example.org
 certbot_renew_cron_hour: 3
 certbot_renew_cron_minute: 20
 certbot_staging: true
+
+
+# === Docker Compose
+docker_compose_version: v2.9.0

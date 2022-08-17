@@ -1,11 +1,8 @@
-# Nexus Repository Manager + Nginx + Let’s Encrypt SSL in Docker Compose Ansible role  
+# Nexus Repository Manager + Nginx + Let’s Encrypt SSL in Docker Compose Ansible playbook  
 
-This Ansible role configures Docker Compose with Sonatype Nexus Repository Manager OSS 3.x, Nginx reverse proxy and Let's Encrypt SSL with auto-renewal.  
-It was tested on Ubuntu Focal, but should work on other Linux distributions with systemd and Docker Compose.
+This Ansible playbook installs Docker Compose with Sonatype Nexus Repository Manager OSS 3.x, Nginx reverse proxy and Let's Encrypt SSL with auto-renewal.  
 
-
-## Prerequisites  
-This Ansible role requires docker, docker-compose and cron packages to be installed on the system.
+It was tested on Ubuntu Focal, but should work on other Linux distributions with systemd and Docker Compose support.  
 
 
 ## Deployment  
@@ -41,12 +38,16 @@ certbot_email: admin@example.org
 certbot_renew_cron_hour: 3
 certbot_renew_cron_minute: 20
 certbot_staging: true
+
+
+# === Docker Compose
+docker_compose_version: v2.9.0
 ```
 
 Run Ansible playbook
 ```shell
 cd ./ansible
-ansible-playbook -i inventory.ini 1_install_nexus.yml
+ansible-playbook -i inventory.ini 1_install_docker.yml 2_install_nexus.yml
 ```
 
 ## Configuration  

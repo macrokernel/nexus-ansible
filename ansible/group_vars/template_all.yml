@@ -1,22 +1,22 @@
 # === Nexus
 nexus_docker_image: sonatype/nexus3:latest
-nexus_autoconfiguration: false
+nexus_autoconfiguration: true
 
 
 # === Nginx
-nginx_docker_image: nginx:latest
-backend_name: nexus
-backend_port: 8081
-server_name: nexus.example.org
-# Example: server_alias: repo.example.org
-server_alias: 
+nexus_nginx_docker_image: nginx:latest
+nexus_backend_name: nexus
+nexus_backend_port: 8081
+nexus_server_name: nexus.example.org
+# Example: nexus_server_alias: repo.example.org
+nexus_server_alias: 
 
 
 # == Let's Encrypt
-certbot_email: admin@example.org
-certbot_renew_cron_hour: 3
-certbot_renew_cron_minute: 20
-certbot_staging: true
+nexus_certbot_email: admin@example.org
+nexus_certbot_renew_cron_hour: 3
+nexus_certbot_renew_cron_minute: 20
+nexus_certbot_staging: true
 
 
 # === Docker Compose

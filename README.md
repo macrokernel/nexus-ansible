@@ -25,19 +25,19 @@ nexus_autoconfiguration: false
 
 
 # === Nginx
-nginx_docker_image: nginx:latest
-backend_name: nexus
-backend_port: 8081
-server_name: nexus.example.org
-# Example: server_alias: repo.example.org
-server_alias: 
+nexus_nginx_docker_image: nginx:latest
+nexus_backend_name: nexus
+nexus_backend_port: 8081
+nexus_server_name: nexus.example.org
+# Example: nexus_server_alias: repo.example.org
+nexus_server_alias: 
 
 
 # == Let's Encrypt
-certbot_email: admin@example.org
-certbot_renew_cron_hour: 3
-certbot_renew_cron_minute: 20
-certbot_staging: true
+nexus_certbot_email: admin@example.org
+nexus_certbot_renew_cron_hour: 3
+nexus_certbot_renew_cron_minute: 20
+nexus_certbot_staging: true
 
 
 # === Docker Compose
@@ -53,15 +53,15 @@ ansible-playbook -i inventory.ini 1_install_docker.yml 2_install_nexus.yml
 ## Configuration  
 Deployment parameters are specified in the `ansible/group_vars/all.yml` configuration file.  
 
-Specify the email address, which will be supplied to Let's Encrypt while requesting SSL certificate, in the `certbot_email` parameter.  
+Specify the email address, which will be supplied to Let's Encrypt while requesting SSL certificate, in the `nexus_certbot_email` parameter.  
 
-Specify hour and minute of the daily Let's Encrypt certificate renewal cron job in the `certbot_renew_cron_hour` and `certbot_renew_cron_hour` parameters.  
+Specify hour and minute of the daily Let's Encrypt certificate renewal cron job in the `nexus_certbot_renew_cron_hour` and `nexus_certbot_renew_cron_hour` parameters.  
 
-If you wish to test Let's Encrypt SSL certificates issuing, set  `certbot_staging: true` - it helps to avoid hitting Let's Encrypt certificate issuing rate limits while running certbot multiple times.  
+If you wish to test Let's Encrypt SSL certificates issuing, set  `nexus_certbot_staging: true` - it helps to avoid hitting Let's Encrypt certificate issuing rate limits while running certbot multiple times.  
 
-The `backend_name` and `backend_port` parameters are used in Nginx configuration file to tell Nginx reverse proxy how to connect to its backend - Nexus.  
+The `nexus_backend_name` and `nexus_backend_port` parameters are used in Nginx configuration file to tell Nginx reverse proxy how to connect to its backend - Nexus.  
 
-The `server_name` and `server_alias` parameters instruct Nginx to forward traffic for the specified hostnames to Nexus. You may specify as many `server_alias` names as you wish, or you may leave it empty or undefined.  
+The `nexus_server_name` and `nexus_server_alias` parameters instruct Nginx to forward traffic for the specified hostnames to Nexus. You may specify as many `nexus_server_alias` names as you wish, or you may leave it empty or undefined.  
 
 The Nexus deployment Ansible role is able to execute a script which configures Nexus using its REST API. If you wish to use this feature, you may edit the `ansible/roles/install_nexus/templates/nexus-autoconfiguration.sh.j2` autoconfiguration script template and set `nexus_autoconfiguration: true` in `ansible/group_vars/all.yml` before you run the deployment.
 
@@ -69,8 +69,8 @@ Below is an example of the autoconfiguration script which creates a Docker proxy
 ```shell
 #!/bin/sh
 
-curl -u admin:{{ nexus_password }} -k -H 'Content-Type: application/json' 'https://{{ server_name }}/service/rest/v1/script' -d '{"name": "CreateDockerProxy","type": "groovy","content": "repository.createDockerProxy('\''docker-proxy-registry'\'', '\''https://registry-1.docker.io'\'', '\''HUB'\'', null, 5000, null)"}'
-curl -X POST -u admin:{{ nexus_password }} -k -H 'Content-Type: text/plain' 'https://{{ server_name }}/service/rest/v1/script/CreateDockerProxy/run'
+curl -u admin:{{ nexus_password }} -k -H 'Content-Type: application/json' 'https://{{ nexus_server_name }}/service/rest/v1/script' -d '{"name": "CreateDockerProxy","type": "groovy","content": "repository.createDockerProxy('\''docker-proxy'\'', '\''https://registry-1.docker.io'\'', '\''HUB'\'', null, null, null)"}'
+curl -X POST -u admin:{{ nexus_password }} -k -H 'Content-Type: text/plain' 'https://{{ nexus_server_name }}/service/rest/v1/script/CreateDockerProxy/run'
 ```
 
 Please note that autoconfiguration can only be performed on the first run of the Nexus deployment role, because Nexus admin password is only known at the first start of Nexus.

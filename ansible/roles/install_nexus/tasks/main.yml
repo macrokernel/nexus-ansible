@@ -15,29 +15,29 @@
 
   - name: Make up server alias parameters string
     set_fact:
-       aliases: "{{ server_alias.split() | join(' -d ') }}"
-    when: server_alias
+       aliases: "{{ nexus_server_alias.split() | join(' -d ') }}"
+    when: nexus_server_alias
 
   - name: Update server aliases in certbot command in the docker-compose file
     replace:
       path: "{{ nexus_docker_compose_location }}/{{ nexus_docker_compose_file_name }}"
       regexp: '(^\s*command: certonly .*) -d .*'
-      replace: '\1 -d {{ server_name }} -d {{ aliases }}'
-    when: server_alias
+      replace: '\1 -d {{ nexus_server_name }} -d {{ aliases }}'
+    when: nexus_server_alias
 
   - name: Enable Lets Encrypt staging mode in certbot command in the docker-compose file
     replace:
       path: "{{ nexus_docker_compose_location }}/{{ nexus_docker_compose_file_name }}"
       regexp: '(^\s*command: certonly)( --staging )?(.*)'
       replace: '\1 --staging \3'
-    when: certbot_staging
+    when: nexus_certbot_staging
 
   - name: Disable Lets Encrypt staging mode in certbot command in the docker-compose file
     replace:
       path: "{{ nexus_docker_compose_location }}/{{ nexus_docker_compose_file_name }}"
       regexp: '(^\s*command: certonly)( --staging )?(.*)'
       replace: '\1 \3'
-    when: not certbot_staging
+    when: not nexus_certbot_staging
 
   - name: Create Nexus data directory {{ nexus_docker_compose_location }}/nexus-data
     file:
@@ -96,14 +96,14 @@
       - letsencrypt
       - web-root
 
-  - name: Create dummy certificate for "{{ server_name }}"
+  - name: Create dummy certificate for "{{ nexus_server_name }}"
     command: "{{ item }}"
     with_items:
-      - mkdir -p "{{ nexus_docker_compose_location }}/letsencrypt/live/{{ server_name }}"
-      - docker-compose run --rm --entrypoint "openssl req -x509 -nodes -newkey rsa:2048 -days 1 -keyout '/etc/letsencrypt/live/{{ server_name }}/privkey.pem' -out '/etc/letsencrypt/live/{{ server_name }}/fullchain.pem' -subj '/CN=localhost'" certbot
+      - mkdir -p "{{ nexus_docker_compose_location }}/letsencrypt/live/{{ nexus_server_name }}"
+      - docker-compose run --rm --entrypoint "openssl req -x509 -nodes -newkey rsa:2048 -days 1 -keyout '/etc/letsencrypt/live/{{ nexus_server_name }}/privkey.pem' -out '/etc/letsencrypt/live/{{ nexus_server_name }}/fullchain.pem' -subj '/CN=localhost'" certbot
     args: 
       chdir: "{{ nexus_docker_compose_location }}"
-      creates: "{{ nexus_docker_compose_location }}/letsencrypt/live/{{ server_name }}/fullchain.pem"
+      creates: "{{ nexus_docker_compose_location }}/letsencrypt/live/{{ nexus_server_name }}/fullchain.pem"
   when: nexus_docker_compose_location|default("") != ""
 
 
@@ -166,7 +166,7 @@
 - block:
   - name: Check if Nginx is using dummy certificate
     stat:
-      path: "{{ nexus_docker_compose_location }}/letsencrypt/live/{{ server_name }}/cert.pem"
+      path: "{{ nexus_docker_compose_location }}/letsencrypt/live/{{ nexus_server_name }}/cert.pem"
     register: real_cert
 
   - name: Wait for Nginx startup
@@ -178,13 +178,13 @@
       timeout: 15
     when: not real_cert.stat.exists
 
-  - name: Remove dummy certificate for "{{ server_name }}"
-    command: rm -rf "{{ nexus_docker_compose_location }}/letsencrypt/live/{{ server_name }}"
+  - name: Remove dummy certificate for "{{ nexus_server_name }}"
+    command: rm -rf "{{ nexus_docker_compose_location }}/letsencrypt/live/{{ nexus_server_name }}"
     when: not real_cert.stat.exists
 
-  - name: Wait for Certbot to obtain Lets Encrypt certificate for "{{ server_name }}"
+  - name: Wait for Certbot to obtain Lets Encrypt certificate for "{{ nexus_server_name }}"
     wait_for:
-      path: "{{ nexus_docker_compose_location }}/letsencrypt/live/{{ server_name }}/cert.pem"
+      path: "{{ nexus_docker_compose_location }}/letsencrypt/live/{{ nexus_server_name }}/cert.pem"
       timeout: 30
     when: not real_cert.stat.exists
 
@@ -193,24 +193,24 @@
     args:
       chdir: "{{ nexus_docker_compose_location }}"
     when: not real_cert.stat.exists
-  when: (nexus_docker_compose_location|default("") != "") and (server_name|default("") != "")
+  when: (nexus_docker_compose_location|default("") != "") and (nexus_server_name|default("") != "")
 
 
 - block:
   - name: Create Lets Encrypt certificate renewal cron job
     ansible.builtin.cron:
-      name: "Renew Lets Encrypt certificate for {{ server_name }}"
+      name: "Renew Lets Encrypt certificate for {{ nexus_server_name }}"
       hour: "3"
       minute: "20"
       user: root
       job: "cd {{ nexus_docker_compose_location }} && docker-compose run certbot renew && docker-compose restart nginx"
-  when: (nexus_docker_compose_location|default("") != "") and (certbot_renew_cron_hour|default("") != "") and (certbot_renew_cron_minute|default("") != "")
+  when: (nexus_docker_compose_location|default("") != "") and (nexus_certbot_renew_cron_hour|default("") != "") and (nexus_certbot_renew_cron_minute|default("") != "")
 
 
 - block:
   - name: Wait for Nexus to come up
     uri:
-      url: "https://{{ server_name }}/"
+      url: "https://{{ nexus_server_name }}/"
       method: GET
     register: _result
     until: _result.status == 200
@@ -231,7 +231,7 @@
 
   - set_fact: nexus_password="{{ nexus_password_tmp.stdout }}"
     when: first_time_password.stat.exists
-  when: (nexus_docker_compose_location|default("") != "") and (server_name|default("") != "")
+  when: (nexus_docker_compose_location|default("") != "") and (nexus_server_name|default("") != "")
 
 
 # This block must be located after the block where Nexus admin password is obtained

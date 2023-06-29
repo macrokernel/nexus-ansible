@@ -1,3 +1,4 @@
+---
 galaxy_info:
   author: Sergey Syreskin
   description: Install Nexus Repository Manager (Sonatype) in Docker Compose with Let's Encrypt SSL

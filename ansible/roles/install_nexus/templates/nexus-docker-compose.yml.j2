@@ -3,7 +3,7 @@ version: '3.5'
 services:
   nexus:
     restart: unless-stopped
-    container_name: nexus
+    container_name: {{ nexus_backend_name }}
     stop_grace_period: 120s
     image: {{ nexus_docker_image }}
     ports:
@@ -14,7 +14,7 @@ services:
   nginx:
     restart: unless-stopped
     container_name: nginx
-    image: {{ nginx_docker_image }}
+    image: {{ nexus_nginx_docker_image }}
     ports:
       - 80:80
       - 443:443
@@ -34,7 +34,7 @@ services:
       - /srv/nexus/web-root:/var/www/html
     depends_on:
       - nginx
-    command: certonly --staging --webroot --webroot-path=/var/www/html --email {{ certbot_email }} --agree-tos --no-eff-email --force-renewal -d {{ server_name }}
+    command: certonly --staging --webroot --webroot-path=/var/www/html --email {{ nexus_certbot_email }} --agree-tos --no-eff-email --force-renewal -d {{ nexus_server_name }}
       
 networks:
   default:

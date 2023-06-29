@@ -1,7 +1,7 @@
 server {
         listen 80;
         listen [::]:80;
-        server_name {{ server_name }} {{ server_alias }};
+        server_name {{ nexus_server_name }} {{ nexus_server_alias }};
 
         location ~ /.well-known/acme-challenge {
           allow all;
@@ -16,7 +16,7 @@ server {
 server {
         listen 443 ssl http2;
         listen [::]:443 ssl http2;
-        server_name {{ server_name }} {{ server_alias }};
+        server_name {{ nexus_server_name }} {{ nexus_server_alias }};
 
         proxy_send_timeout        120;
         proxy_read_timeout        300;
@@ -27,8 +27,9 @@ server {
 
         server_tokens off;
 
-        ssl_certificate /etc/letsencrypt/live/{{ server_name }}/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/{{ server_name }}/privkey.pem;
+
+        ssl_certificate /etc/letsencrypt/live/{{ nexus_server_name }}/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/{{ nexus_server_name }}/privkey.pem;
 
         ssl_buffer_size 8k;
 
@@ -44,29 +45,38 @@ server {
 
         ssl_stapling on;
         ssl_stapling_verify on;
-        resolver 8.8.8.8;
+        resolver 127.0.0.11 ipv6=off;
 
+        # Docker /v2 and /v1 (for search) requests
+        location /v2 {
+             proxy_set_header Host $host:$server_port;
+             proxy_set_header X-Real-IP $remote_addr;
+             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+             proxy_set_header X-Forwarded-Proto "https";
+             proxy_pass http://{{ nexus_backend_name }}:{{ nexus_backend_port }}/repository/docker-proxy/$request_uri;
+        }
+        location /v1 {
+             proxy_set_header Host $host:$server_port;
+             proxy_set_header X-Real-IP $remote_addr;
+             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+             proxy_set_header X-Forwarded-Proto "https";
+             proxy_pass http://{{ nexus_backend_name }}:{{ nexus_backend_port }}/repository/docker-proxy/$request_uri;
+        }
+
+        # Regular Nexus requests
         location / {
-                try_files $uri @{{ backend_name }};
+             proxy_set_header Host $host:$server_port;
+             proxy_set_header X-Real-IP $remote_addr;
+             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+             proxy_set_header X-Forwarded-Proto "https";
+             proxy_pass http://{{ nexus_backend_name }}:{{ nexus_backend_port }};
+
+             add_header X-Frame-Options "SAMEORIGIN" always;
+             add_header X-XSS-Protection "1; mode=block" always;
+             add_header X-Content-Type-Options "nosniff" always;
+             add_header Referrer-Policy "no-referrer-when-downgrade" always;
+             add_header Content-Security-Policy "default-src * data: 'unsafe-eval' 'unsafe-inline'" always;
+             # add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+             # enable strict transport security only if you understand the implications
         }
-
-        location @{{ backend_name }} {
-                proxy_pass http://{{ backend_name }}:{{ backend_port }};
-
-                proxy_set_header Host $host;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                proxy_set_header X-Forwarded-Proto "https";
-
-                add_header X-Frame-Options "SAMEORIGIN" always;
-                add_header X-XSS-Protection "1; mode=block" always;
-                add_header X-Content-Type-Options "nosniff" always;
-                add_header Referrer-Policy "no-referrer-when-downgrade" always;
-                add_header Content-Security-Policy "default-src * data: 'unsafe-eval' 'unsafe-inline'" always;
-                # add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
-                # enable strict transport security only if you understand the implications
-        }
-
-        root /var/www/html;
-        index index.html index.htm index.nginx-debian.html;
 }

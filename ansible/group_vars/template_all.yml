@@ -1,5 +1,5 @@
 # === Nexus
-nexus_docker_image: sonatype/nexus3:latest
+nexus_docker_image: sonatype/nexus3:3.56.0
 nexus_autoconfiguration: true
 
 
